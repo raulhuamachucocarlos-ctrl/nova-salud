@@ -26,9 +26,25 @@ La aplicación está preparada para alojar el frontend compilado y la API desde 
 
 ## Ejemplo con Railway
 
-Railway puede desplegar el servicio Node desde un repositorio y asignarle un dominio público `*.up.railway.app`. Railway gestiona certificados TLS para sus dominios y redirige HTTP a HTTPS. Configura los comandos `npm run build` y `npm start` en el servicio.
+1. Crea un proyecto y elige **Deploy from GitHub repo**. Selecciona `raulhuamachucocarlos-ctrl/nova-salud`.
+2. En el servicio de la aplicación, configura `npm run build` como Build Command y `npm start` como Start Command.
+3. En el mismo proyecto, agrega un servicio MySQL. Antes de utilizarlo, confirma que tenga almacenamiento persistente conectado; la base guarda ventas y existencias.
+4. Agrega estas variables en el servicio de Nova Salud. Reemplaza `MySQL` en las referencias si le diste otro nombre al servicio de base de datos:
 
-La base MySQL debe estar alojada también en la nube y aceptar conexiones del servicio. No publiques el puerto MySQL; usa una red privada si el proveedor lo permite. Revisa el costo vigente antes de crear recursos: el alojamiento puede generar cargos.
+   ```text
+   NODE_ENV=production
+   DB_HOST=${{MySQL.MYSQLHOST}}
+   DB_PORT=${{MySQL.MYSQLPORT}}
+   DB_USER=${{MySQL.MYSQLUSER}}
+   DB_PASSWORD=${{MySQL.MYSQLPASSWORD}}
+   DB_NAME=${{MySQL.MYSQLDATABASE}}
+   SESSION_SECRET=<secreto aleatorio largo>
+   ```
+
+5. Migra los datos de phpMyAdmin a la instancia alojada. Para conservar la cuenta existente y las ventas, exporta e importa la base completa. También puedes iniciar con los datos ficticios importando `database/nova_salud.sql` y `database/auth_migration.sql`, y luego crear una contraseña con `npm run auth:create -- maria.rodriguez@example.test`.
+6. Espera a que termine el despliegue, abre **Settings → Networking → Generate Domain** y utiliza la dirección HTTPS que te asigne Railway.
+
+Railway permite que el servicio de la aplicación se conecte a MySQL mediante las variables privadas del proyecto; la base queda privada salvo que habilites Public Access. Railway asigna un dominio HTTPS y administra su certificado TLS. Revisa el costo vigente antes de crear servicios y configura un límite de gasto si corresponde.
 
 ## Referencias oficiales
 
